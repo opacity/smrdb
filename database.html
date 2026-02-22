@@ -1,1 +1,302 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SMRDB — Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#111113;--bg2:#18181b;--text:#d4d4d8;--dim:#71717a;--ghost:#27272a;--border:#27272a}
+.dark{--bg:#111113;--bg2:#18181b;--text:#d4d4d8;--dim:#71717a;--ghost:#27272a;--border:#27272a}
+.light{--bg:#f5f5f6;--bg2:#e8e8ea;--text:#18181b;--dim:#3f3f46;--ghost:#d4d4d8;--border:#c4c4c8}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;transition:background .4s,color .4s}a{color:inherit;text-decoration:none}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;backdrop-filter:blur(16px);background:rgba(17,17,19,.9);border-bottom:1px solid var(--border);transition:background .4s}
+.light nav{background:rgba(245,245,246,.93)}
+.nav-r{display:flex;gap:32px;align-items:center}
+.nav-r a{color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:color .3s}
+.nav-r a:hover,.nav-r a.on{color:var(--text)}
+.theme-btn{width:36px;height:20px;border-radius:10px;background:var(--ghost);border:1px solid var(--border);cursor:pointer;position:relative;transition:all .3s}
+.theme-btn::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .3s}
+.light .theme-btn::after{left:18px;background:var(--text)}
+.toolbar{padding:24px 40px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:12px}
+.toolbar-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search-wrap{width:100%;position:relative;margin-bottom:4px}
+.search-wrap input{width:100%;padding:14px 18px 14px 44px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;outline:none;transition:border-color .2s,background .4s}
+.search-wrap input:focus{border-color:var(--dim)}
+.search-wrap input::placeholder{color:var(--dim)}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
+select{padding:10px 32px 10px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;flex:1;min-width:120px;transition:background .4s,border-color .2s}
+select:focus{border-color:var(--dim)}
+.count{font-size:11px;color:var(--dim);white-space:nowrap;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0}
+.card{background:var(--bg);padding:24px 28px;display:flex;flex-direction:column;gap:10px;transition:background .2s;cursor:pointer;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.card:hover{background:var(--bg2)}
+.card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card-name{font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;line-height:1.2}
+.card-country{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);white-space:nowrap;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{padding:2px 7px;font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--border);color:var(--dim);transition:border-color .4s}
+.tag.sp{border-color:rgba(96,184,255,.25);color:rgba(96,184,255,.8)}
+.tag.cl{border-color:rgba(161,161,170,.3);color:var(--text)}
+.tag.uc{border-color:rgba(96,184,255,.35);color:#60b8ff;background:rgba(96,184,255,.06)}
+.tag.op{border-color:rgba(93,250,177,.4);color:#5dfab1;background:rgba(93,250,177,.06)}
+.card-dev{font-size:10.5px;color:var(--dim)}
+.card-specs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
+.spec{display:flex;flex-direction:column;gap:1px}
+.spec-v{font-size:14px;font-family:'Instrument Serif',serif}
+.spec-l{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.empty{padding:80px 40px;text-align:center;color:var(--dim);font-size:13px;grid-column:1/-1;background:var(--bg)}
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:40px;overflow-y:auto}
+.detail-overlay.show{display:flex}
+.detail{background:var(--bg);border:1px solid var(--border);max-width:700px;width:100%;max-height:85vh;overflow-y:auto;padding:40px;position:relative;transition:background .4s}
+.detail-close{position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.detail-close:hover{border-color:var(--dim)}
+.d-name{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;margin-bottom:16px}
+.d-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.d-tags .tag{font-size:10px;padding:4px 10px}
+.d-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:12px}
+.d-row .dl{color:var(--dim)}
+.d-row .dv{text-align:right;font-weight:500}
+.d-link{display:inline-block;margin-top:24px;padding:12px 24px;border:1px solid var(--border);color:var(--text);font-size:11px;letter-spacing:.06em;text-transform:uppercase;transition:all .2s}
+.d-link:hover{border-color:var(--dim);background:var(--bg2)}
+footer{padding:24px 40px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim)}
+@media(max-width:700px){.toolbar{padding:16px}.toolbar-row{gap:6px}.grid{grid-template-columns:1fr}nav{padding:16px 20px}footer{padding:16px 20px}.detail{padding:24px;margin:16px}}
+</style></head><body class="dark">
+<nav>
+<a href="index.html" style="font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase">SMRDB</a>
+<div class="nav-r"><a href="index.html">Home</a><a href="database.html" class="on">Database</a><div class="theme-btn" id="themeBtn"></div></div>
+</nav>
+<div class="toolbar">
+<div class="search-wrap">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+<input type="text" id="search" placeholder="Search reactors, developers, countries...">
+</div>
+<div class="toolbar-row">
+<select id="fCountry"><option value="">All Countries</option></select>
+<select id="fCoolant"><option value="">All Coolants</option></select>
+<select id="fSpectrum"><option value="">All Spectrums</option></select>
+<select id="fStatus"><option value="">All Statuses</option></select>
+<select id="fEnrich"><option value="">All Enrichments</option></select>
+<select id="sortSel">
+<option value="name-asc">Sort: Name ↑</option>
+<option value="name-desc">Sort: Name ↓</option>
+<option value="mwe-desc">Sort: MWe ↓</option>
+<option value="mwe-asc">Sort: MWe ↑</option>
+<option value="mwt-desc">Sort: MWt ↓</option>
+<option value="mwt-asc">Sort: MWt ↑</option>
+<option value="outletTemp-desc">Sort: Temp ↓</option>
+<option value="outletTemp-asc">Sort: Temp ↑</option>
+<option value="country-asc">Sort: Country ↑</option>
+</select>
+<div class="count" id="count"></div>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+<div class="detail-overlay" id="detailOverlay">
+<div class="detail" id="detail">
+<button class="detail-close" id="detailClose">← Back to results</button>
+<div id="detailContent"></div>
+</div>
+</div>
+<footer>© 2026 smrdb.com</footer>
+<script>
+document.getElementById('themeBtn').onclick=function(){document.body.classList.toggle('light');document.body.classList.toggle('dark');};
+const REACTORS=[
+{name:"4S",country:"Japan",spectrum:"Fast",coolant:"Metal-cooled",developer:"Toshiba",status:"Design & development",enrichment:"5-20%",outletTemp:510,mwt:30,mwe:10},
+{name:"A-HTR-100",country:"South Africa",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Eskom",status:"Design & development",enrichment:"5-20%",outletTemp:1200,mwt:100,mwe:35},
+{name:"ABV-6E",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:325,mwt:38,mwe:9},
+{name:"ABV-6M",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:325,mwt:38,mwe:9},
+{name:"ACP100",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"CNNC (NPIC)",status:"Under construction",enrichment:"<5%",outletTemp:320,mwt:385,mwe:125},
+{name:"ACP100S",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"CNNC",status:"Design & development",enrichment:"<5%",outletTemp:320,mwt:385,mwe:125},
+{name:"ACPR100",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"CGN",status:"Design & development",enrichment:"<5%",outletTemp:310,mwt:450,mwe:140},
+{name:"ACPR50S",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"CGN",status:"Design & development",enrichment:"<5%",outletTemp:320,mwt:200,mwe:60},
+{name:"AHWR-300 LEU",country:"India",spectrum:"Thermal",coolant:"Water-cooled",developer:"BARC",status:"Design & development",enrichment:"5-20%",outletTemp:285,mwt:920,mwe:300},
+{name:"Allseas HTGR",country:"Netherlands",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Allseas Engineering B.V.",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:70,mwe:25},
+{name:"AMR",country:"South Africa",spectrum:"Thermal",coolant:"Gas-cooled",developer:"STL Nuclear",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:10,mwe:3},
+{name:"Antares – SC-HTGR",country:"France",spectrum:"Thermal",coolant:"Gas-cooled",developer:"AREVA",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:600,mwe:285},
+{name:"AP300",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Westinghouse",status:"Design & development",enrichment:"<5%",outletTemp:325,mwt:990,mwe:330},
+{name:"ARC-100",country:"Canada",spectrum:"Fast",coolant:"Metal-cooled",developer:"ARC Clean Technology",status:"Design & development",enrichment:"5-20%",outletTemp:510,mwt:286,mwe:100},
+{name:"Aurora Powerhouse",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"Oklo",status:"Design & development",enrichment:"5-20%",outletTemp:500,mwt:205,mwe:75},
+{name:"BANDI-60",country:"South Korea",spectrum:"Thermal",coolant:"Water-cooled",developer:"KEPCO E&C",status:"Design & development",enrichment:"<5%",outletTemp:322,mwt:200,mwe:60},
+{name:"Blossom Energy SMR",country:"Japan",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Blossom Energy",status:"Design & development",enrichment:"5-20%",outletTemp:null,mwt:180,mwe:null},
+{name:"Blue Capsule",country:"France",spectrum:"Thermal",coolant:"Metal-cooled",developer:"Blue Capsule Technology",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:150,mwe:50},
+{name:"BREST-OD-300",country:"Russia",spectrum:"Fast",coolant:"Metal-cooled",developer:"NIKIET",status:"Under construction",enrichment:"5-20%",outletTemp:535,mwt:700,mwe:300},
+{name:"BWRX-300",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"GE Hitachi",status:"Design & development",enrichment:"<5%",outletTemp:288,mwt:870,mwe:300},
+{name:"CAL-30",country:"France",spectrum:"Thermal",coolant:"Water-cooled",developer:"Calogena",status:"Design & development",enrichment:"<5%",outletTemp:110,mwt:30,mwe:0},
+{name:"CAP150",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"SNERDI",status:"Design & development",enrichment:"<5%",outletTemp:310,mwt:450,mwe:150},
+{name:"CAP200 / LandStar-V",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"SNERDI",status:"Design & development",enrichment:"<5%",outletTemp:313,mwt:660,mwe:200},
+{name:"CAP50",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"SNERDI",status:"Design & development",enrichment:"<5%",outletTemp:250,mwt:200,mwe:40},
+{name:"CAREM25",country:"Argentina",spectrum:"Thermal",coolant:"Water-cooled",developer:"CNEA",status:"Under construction",enrichment:"<5%",outletTemp:326,mwt:100,mwe:32},
+{name:"CMSR",country:"Denmark",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Saltfloss Energy",status:"Design & development",enrichment:"<5%",outletTemp:650,mwt:250,mwe:100},
+{name:"Copenhagen Atomics Waste Burner",country:"Denmark",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Copenhagen Atomics",status:"Design & development",enrichment:"<5%",outletTemp:700,mwt:100,mwe:42},
+{name:"DEER",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Radiant",status:"Design & development",enrichment:"5-20%",outletTemp:null,mwt:3,mwe:1},
+{name:"DF300",country:"Canada",spectrum:"Fast",coolant:"Metal-cooled",developer:"Dual Fluid Energy",status:"Design & development",enrichment:"NA",outletTemp:1000,mwt:600,mwe:300},
+{name:"DFBR-1",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Deep Fission",status:"Design & development",enrichment:"<5%",outletTemp:315,mwt:50,mwe:15},
+{name:"DHR400",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"CNNC",status:"Design & development",enrichment:"<5%",outletTemp:98,mwt:400,mwe:0},
+{name:"ELENA",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"Kurchatov Institute",status:"Design & development",enrichment:"5-20%",outletTemp:328,mwt:3.3,mwe:0.7},
+{name:"Elysium MCSFR",country:"USA",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Elysium Industries",status:"Design & development",enrichment:"NA",outletTemp:750,mwt:125,mwe:50},
+{name:"EM2",country:"USA",spectrum:"Fast",coolant:"Gas-cooled",developer:"General Atomics",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:500,mwe:265},
+{name:"Energy Well",country:"Czech Republic",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Czech Technical University",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:20,mwe:8},
+{name:"ENHS",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"UC Berkeley",status:"Design & development",enrichment:"NA",outletTemp:550,mwt:125,mwe:50},
+{name:"eVinci",country:"USA",spectrum:"Thermal",coolant:"Heat pipe-cooled",developer:"Westinghouse",status:"Design & development",enrichment:"5-20%",outletTemp:600,mwt:15,mwe:5},
+{name:"FLEX",country:"UK",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"MoltexFLEX",status:"Design & development",enrichment:"<5%",outletTemp:795,mwt:60,mwe:24},
+{name:"Flexblue",country:"France",spectrum:"Thermal",coolant:"Water-cooled",developer:"Naval Group",status:"Design & development",enrichment:"<5%",outletTemp:318,mwt:530,mwe:160},
+{name:"Flibe LFTR",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Flibe Energy",status:"Design & development",enrichment:"NA",outletTemp:650,mwt:600,mwe:250},
+{name:"FMR",country:"USA",spectrum:"Fast",coolant:"Gas-cooled",developer:"General Atomics",status:"Design & development",enrichment:"5-20%",outletTemp:800,mwt:100,mwe:44},
+{name:"FUJI",country:"Japan",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"IThEMS",status:"Design & development",enrichment:"<5%",outletTemp:704,mwt:450,mwe:200},
+{name:"Gen4 module",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"Gen4 Energy",status:"Design & development",enrichment:"5-20%",outletTemp:500,mwt:70,mwe:25},
+{name:"GT-MHR",country:"Russia",spectrum:"Thermal",coolant:"Gas-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:600,mwe:288},
+{name:"GTHTR300",country:"Japan",spectrum:"Thermal",coolant:"Gas-cooled",developer:"JAEA",status:"Design & development",enrichment:"5-20%",outletTemp:950,mwt:600,mwe:200},
+{name:"Halo 10",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Hadron Energy",status:"Design & development",enrichment:"5-20%",outletTemp:300,mwt:35,mwe:10},
+{name:"HAPPY200",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"SPIC",status:"Design & development",enrichment:"<5%",outletTemp:120,mwt:200,mwe:0},
+{name:"HECTAR",country:"South Korea",spectrum:"Thermal",coolant:"Gas-cooled",developer:"KAERI",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:90,mwe:0},
+{name:"Hermes 2",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Kairos Power",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:125,mwe:50},
+{name:"Hermes demonstration plant",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Kairos Power",status:"Under construction",enrichment:"5-20%",outletTemp:650,mwt:35,mwe:20},
+{name:"HEXANA",country:"France",spectrum:"Fast",coolant:"Molten salt cooled",developer:"HEXANA",status:"Design & development",enrichment:"NA",outletTemp:530,mwt:400,mwe:150},
+{name:"Holos Mono",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"HolosGen",status:"Design & development",enrichment:"5-20%",outletTemp:855,mwt:22,mwe:10},
+{name:"Holos Quad",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"HolosGen",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:22,mwe:10},
+{name:"HTGR-POLA",country:"Poland",spectrum:"Thermal",coolant:"Gas-cooled",developer:"NCBJ",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:30,mwe:11.5},
+{name:"HTMR100",country:"South Africa",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Stratek Global",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:100,mwe:35},
+{name:"HTR-PM",country:"China",spectrum:"Thermal",coolant:"Gas-cooled",developer:"INET/Tsinghua University",status:"In operation",enrichment:"5-20%",outletTemp:750,mwt:250,mwe:105},
+{name:"HTR50S",country:"Japan",spectrum:"Thermal",coolant:"Gas-cooled",developer:"JAEA",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:50,mwe:17.2},
+{name:"HTTR",country:"Japan",spectrum:"Thermal",coolant:"Gas-cooled",developer:"JAEA",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:30,mwe:0},
+{name:"i-SMR",country:"South Korea",spectrum:"Thermal",coolant:"Water-cooled",developer:"KAERI",status:"Design & development",enrichment:"<5%",outletTemp:321,mwt:520,mwe:170},
+{name:"IMSR400",country:"Canada",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Terrestrial Energy",status:"Design & development",enrichment:"<5%",outletTemp:700,mwt:440,mwe:195},
+{name:"JIMMY",country:"Czech Republic",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Jimmy Energy",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:5,mwe:1.5},
+{name:"KARAT-100",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"<5%",outletTemp:286,mwt:360,mwe:100},
+{name:"KARAT-45",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"<5%",outletTemp:286,mwt:180,mwe:45},
+{name:"KLT-40S",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"In operation",enrichment:"5-20%",outletTemp:316,mwt:150,mwe:35},
+{name:"KP-FHR",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Kairos Power",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:320,mwe:140},
+{name:"KRONOS MMR",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"NANO Nuclear Energy",status:"Design & development",enrichment:"5-20%",outletTemp:660,mwt:45,mwe:15},
+{name:"LDR-50",country:"Finland",spectrum:"Thermal",coolant:"Water-cooled",developer:"Steady Energy",status:"Design & development",enrichment:"<5%",outletTemp:150,mwt:50,mwe:0},
+{name:"Leadir-PS100",country:"Canada",spectrum:"Fast",coolant:"Metal-cooled",developer:"Northern Nuclear",status:"Design & development",enrichment:"NA",outletTemp:560,mwt:100,mwe:36},
+{name:"LEUNR",country:"Canada",spectrum:"Thermal",coolant:"Water-cooled",developer:"Canadian Space Mining Corporation",status:"Design & development",enrichment:"5-20%",outletTemp:130,mwt:0.1,mwe:0},
+{name:"LFR-AS-200",country:"France",spectrum:"Fast",coolant:"Metal-cooled",developer:"newcleo",status:"Design & development",enrichment:"NA",outletTemp:530,mwt:480,mwe:200},
+{name:"LFR-AS-30",country:"France",spectrum:"Fast",coolant:"Metal-cooled",developer:"newcleo",status:"Design & development",enrichment:"NA",outletTemp:530,mwt:90,mwe:30},
+{name:"LFR-TL-30",country:"France",spectrum:"Fast",coolant:"Metal-cooled",developer:"newcleo",status:"Design & development",enrichment:"NA",outletTemp:440,mwt:100,mwe:30},
+{name:"LOKI MMR",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"NANO Nuclear Energy",status:"Design & development",enrichment:"5-20%",outletTemp:727,mwt:5,mwe:1.5},
+{name:"LSPR",country:"Japan",spectrum:"Fast",coolant:"Metal-cooled",developer:"Tokyo Institute of Technology",status:"Design & development",enrichment:"5-20%",outletTemp:525,mwt:150,mwe:53},
+{name:"MARVEL Research Microreactor",country:"USA",spectrum:"Thermal",coolant:"Metal-cooled",developer:"INL/DOE",status:"Design & development",enrichment:"5-20%",outletTemp:520,mwt:0.1,mwe:0.02},
+{name:"MHR-100",country:"Russia",spectrum:"Thermal",coolant:"Gas-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:850,mwt:215,mwe:50},
+{name:"MicroURANUS",country:"South Korea",spectrum:"Fast",coolant:"Metal-cooled",developer:"MicroURANUS Corp.",status:"Design & development",enrichment:"5-20%",outletTemp:350,mwt:60,mwe:20},
+{name:"Mini Fuji",country:"Japan",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"IThEMS",status:"Design & development",enrichment:"<5%",outletTemp:700,mwt:10,mwe:4},
+{name:"MMR-10",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Ultra Safe Nuclear Corporation",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:30,mwe:10},
+{name:"MMR-5",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Ultra Safe Nuclear Corporation",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:15,mwe:5},
+{name:"MN-1",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"MobileNuclear Energy",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:1,mwe:0.35},
+{name:"Moltex SSR-Th",country:"UK",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Moltex Energy",status:"Design & development",enrichment:"NA",outletTemp:600,mwt:null,mwe:null},
+{name:"Moltex SSR-W",country:"UK",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Moltex Energy",status:"Design & development",enrichment:"NA",outletTemp:600,mwt:750,mwe:300},
+{name:"MoveluX",country:"Japan",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Toshiba",status:"Design & development",enrichment:"<5%",outletTemp:685,mwt:10,mwe:3},
+{name:"mPower",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"BWXT",status:"Design & development",enrichment:"<5%",outletTemp:320,mwt:530,mwe:195},
+{name:"MSR-1",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Natura Resources",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:1,mwe:0.4},
+{name:"MSR-100",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Natura Resources",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:250,mwe:100},
+{name:"Natrium",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"TerraPower",status:"Design & development",enrichment:"5-20%",outletTemp:500,mwt:840,mwe:345},
+{name:"NHR200-II",country:"China",spectrum:"Thermal",coolant:"Water-cooled",developer:"INET/Tsinghua University",status:"Design & development",enrichment:"<5%",outletTemp:278,mwt:200,mwe:0},
+{name:"Nuclearis N1",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Nuclearis Energy",status:"Design & development",enrichment:"<5%",outletTemp:320,mwt:42,mwe:17},
+{name:"Nuscale micro",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"NuScale Power",status:"Design & development",enrichment:"5-20%",outletTemp:null,mwt:50,mwe:1},
+{name:"NuScale Power Module",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"NuScale Power",status:"Design & development",enrichment:"<5%",outletTemp:316,mwt:250,mwe:77},
+{name:"NUWARD",country:"France",spectrum:"Thermal",coolant:"Water-cooled",developer:"EDF",status:"Design & development",enrichment:"<5%",outletTemp:307,mwt:540,mwe:170},
+{name:"ODIN",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"NANO Nuclear Energy",status:"Design & development",enrichment:"5-20%",outletTemp:400,mwt:5,mwe:2},
+{name:"Otrera",country:"France",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Otrera New Energy",status:"Design & development",enrichment:"5-20%",outletTemp:550,mwt:300,mwe:110},
+{name:"PB-FHR",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"UC Berkeley",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:236,mwe:100},
+{name:"PBMR-400",country:"South Africa",spectrum:"Thermal",coolant:"Gas-cooled",developer:"PBMR (Pty)",status:"Design & development",enrichment:"5-20%",outletTemp:900,mwt:400,mwe:165},
+{name:"PeLUIt/RDE",country:"Indonesia",spectrum:"Thermal",coolant:"Gas-cooled",developer:"BATAN",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:10,mwe:3},
+{name:"PHWR-220",country:"India",spectrum:"Thermal",coolant:"Water-cooled",developer:"NPCIL",status:"Design & development",enrichment:"<5%",outletTemp:310,mwt:755,mwe:220},
+{name:"PRISM",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"GE Hitachi",status:"Design & development",enrichment:"NA",outletTemp:500,mwt:840,mwe:311},
+{name:"PWR-20",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Last Energy",status:"Design & development",enrichment:"<5%",outletTemp:331,mwt:80,mwe:20},
+{name:"R1",country:"USA",spectrum:"Thermal",coolant:"Heat pipe-cooled",developer:"Antares Nuclear",status:"Design & development",enrichment:"5-20%",outletTemp:800,mwt:1,mwe:0.3},
+{name:"Rapid-L",country:"Japan",spectrum:"Fast",coolant:"Metal-cooled",developer:"CRIEPI",status:"Design & development",enrichment:"5-20%",outletTemp:550,mwt:5,mwe:0.2},
+{name:"RITM-200M",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:321,mwt:198,mwe:50},
+{name:"RITM-200N",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"5-20%",outletTemp:321,mwt:190,mwe:55},
+{name:"RITM-200S",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Under construction",enrichment:"5-20%",outletTemp:321,mwt:198,mwe:50},
+{name:"Rolls-Royce SMR",country:"UK",spectrum:"Thermal",coolant:"Water-cooled",developer:"Rolls-Royce",status:"Design & development",enrichment:"<5%",outletTemp:322,mwt:1358,mwe:470},
+{name:"RUTA-70",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"<5%",outletTemp:101,mwt:70,mwe:0},
+{name:"SALUS-100",country:"South Korea",spectrum:"Fast",coolant:"Molten salt cooled",developer:"KAERI",status:"Design & development",enrichment:"5-20%",outletTemp:510,mwt:267,mwe:100},
+{name:"SEALER-55",country:"Sweden",spectrum:"Fast",coolant:"Metal-cooled",developer:"LeadCold",status:"Design & development",enrichment:"5-20%",outletTemp:480,mwt:55,mwe:3},
+{name:"SHELF-M",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"5-20%",outletTemp:310,mwt:28.4,mwe:6.6},
+{name:"SMART",country:"South Korea",spectrum:"Thermal",coolant:"Water-cooled",developer:"KAERI",status:"Design & development",enrichment:"<5%",outletTemp:322,mwt:365,mwe:107},
+{name:"SMR-300",country:"USA",spectrum:"Thermal",coolant:"Water-cooled",developer:"Holtec International",status:"Design & development",enrichment:"<5%",outletTemp:321,mwt:1050,mwe:366},
+{name:"SSR-U",country:"UK",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Moltex Energy",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:40,mwe:16},
+{name:"SSTAR",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"ANL",status:"Design & development",enrichment:"NA",outletTemp:500,mwt:45,mwe:20},
+{name:"STAR",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"ANL",status:"Design & development",enrichment:"5-20%",outletTemp:300,mwt:30,mwe:10},
+{name:"STAR-H2",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"ANL",status:"Design & development",enrichment:"NA",outletTemp:850,mwt:400,mwe:175},
+{name:"STAR-LM",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"ANL",status:"Design & development",enrichment:"NA",outletTemp:550,mwt:180,mwe:100},
+{name:"Starcore",country:"Canada",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Starcore Nuclear",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:35,mwe:14},
+{name:"START",country:"Switzerland",spectrum:"Fast",coolant:"Metal-cooled",developer:"Transmutex",status:"Design & development",enrichment:"NA",outletTemp:450,mwt:600,mwe:220},
+{name:"Stellarium",country:"France",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Stellaria",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:540,mwe:250},
+{name:"SVBR-100",country:"Russia",spectrum:"Fast",coolant:"Metal-cooled",developer:"AKME-Engineering",status:"Design & development",enrichment:"5-20%",outletTemp:495,mwt:280,mwe:100},
+{name:"TEPLATOR",country:"Czech Republic",spectrum:"Thermal",coolant:"Water-cooled",developer:"UWB & CIIRC CTU",status:"Design & development",enrichment:"<5%",outletTemp:180,mwt:50,mwe:0},
+{name:"Thorcon TMSR",country:"USA",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"ThorCon",status:"Design & development",enrichment:"5-20%",outletTemp:700,mwt:557,mwe:250},
+{name:"THORIZON",country:"Netherlands",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Thorizon",status:"Design & development",enrichment:"5-20%",outletTemp:550,mwt:250,mwe:100},
+{name:"TMSR-SF",country:"China",spectrum:"Thermal",coolant:"Molten salt cooled",developer:"Shanghai Institute of Applied Physics",status:"Design & development",enrichment:"5-20%",outletTemp:650,mwt:10,mwe:2},
+{name:"U-Battery",country:"UK",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Urenco",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:10,mwe:4},
+{name:"UNITHERM",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"5-20%",outletTemp:330,mwt:30,mwe:6.6},
+{name:"VBER-300",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"OKBM Afrikantov",status:"Design & development",enrichment:"<5%",outletTemp:328,mwt:917,mwe:325},
+{name:"VK-300",country:"Russia",spectrum:"Thermal",coolant:"Water-cooled",developer:"NIKIET",status:"Design & development",enrichment:"<5%",outletTemp:280,mwt:750,mwe:250},
+{name:"Westinghouse LFR",country:"USA",spectrum:"Fast",coolant:"Metal-cooled",developer:"Westinghouse",status:"Design & development",enrichment:"5-20%",outletTemp:500,mwt:1200,mwe:450},
+{name:"XAMR",country:"France",spectrum:"Fast",coolant:"Molten salt cooled",developer:"Naarea",status:"Design & development",enrichment:"NA",outletTemp:625,mwt:80,mwe:40},
+{name:"Xe-100",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"X-energy",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:200,mwe:80},
+{name:"XENITH",country:"USA",spectrum:"Thermal",coolant:"Gas-cooled",developer:"X-energy",status:"Design & development",enrichment:"5-20%",outletTemp:750,mwt:20,mwe:5}
+];
 
+function populateFilters(){
+  [['fCountry','country'],['fCoolant','coolant'],['fSpectrum','spectrum'],['fStatus','status'],['fEnrich','enrichment']].forEach(function(f){
+    var sel=document.getElementById(f[0]);
+    var vals=[...new Set(REACTORS.map(function(r){return r[f[1]]}))].filter(Boolean).sort();
+    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    sel.addEventListener('change',render);
+  });
+}
+function getSort(){var v=document.getElementById('sortSel').value.split('-');return{field:v[0],dir:v[1]==='asc'?1:-1};}
+function getFiltered(){
+  var q=(document.getElementById('search').value||'').toLowerCase();
+  var fc=document.getElementById('fCountry').value,fcl=document.getElementById('fCoolant').value,fs=document.getElementById('fSpectrum').value,fst=document.getElementById('fStatus').value,fe=document.getElementById('fEnrich').value;
+  var sort=getSort();
+  return REACTORS.filter(function(r){
+    if(q&&!(r.name.toLowerCase().includes(q)||r.developer.toLowerCase().includes(q)||r.country.toLowerCase().includes(q)||r.coolant.toLowerCase().includes(q)))return false;
+    if(fc&&r.country!==fc)return false;if(fcl&&r.coolant!==fcl)return false;
+    if(fs&&r.spectrum!==fs)return false;if(fst&&r.status!==fst)return false;if(fe&&r.enrichment!==fe)return false;
+    return true;
+  }).sort(function(a,b){
+    var av=a[sort.field],bv=b[sort.field];
+    if(av==null)return 1;if(bv==null)return-1;
+    if(typeof av==='string')return av.localeCompare(bv)*sort.dir;
+    return(av-bv)*sort.dir;
+  });
+}
+function render(){
+  var filtered=getFiltered();
+  document.getElementById('count').textContent='Showing '+filtered.length+' of '+REACTORS.length;
+  var grid=document.getElementById('grid');
+  if(!filtered.length){grid.innerHTML='<div class="empty">No reactors match your filters.</div>';return;}
+  grid.innerHTML=filtered.map(function(r,i){
+    var sc=r.status==='Under construction'?'uc':r.status==='In operation'?'op':'';
+    return '<div class="card" data-idx="'+i+'" onclick="showDetail(\''+r.name.replace(/'/g,"\\'")+'\')"><div class="card-h"><div class="card-name">'+r.name+'</div><div class="card-country">'+r.country+'</div></div><div class="tags"><span class="tag sp">'+r.spectrum+'</span><span class="tag cl">'+r.coolant+'</span>'+(sc?'<span class="tag '+sc+'">'+r.status+'</span>':'')+'</div><div class="card-dev">'+r.developer+'</div><div class="card-specs"><div class="spec"><div class="spec-v">'+(r.mwe!=null?r.mwe:'—')+'</div><div class="spec-l">MWe</div></div><div class="spec"><div class="spec-v">'+(r.mwt!=null?r.mwt:'—')+'</div><div class="spec-l">MWt</div></div><div class="spec"><div class="spec-v">'+(r.outletTemp!=null?r.outletTemp+'°':'—')+'</div><div class="spec-l">Outlet</div></div></div></div>';
+  }).join('');
+}
+window.showDetail=function(name){
+  var r=REACTORS.find(function(x){return x.name===name});
+  if(!r)return;
+  var sc=r.status==='Under construction'?'uc':r.status==='In operation'?'op':'';
+  var url='https://world-nuclear.org/information-library/nuclear-power-reactors/small-modular-reactors/small-modular-reactor-smr-design-database?detail='+encodeURIComponent(r.name);
+  document.getElementById('detailContent').innerHTML=
+    '<div class="d-name">'+r.name+'</div>'+
+    '<div class="d-tags"><span class="tag sp">'+r.spectrum+'</span><span class="tag cl">'+r.coolant+'</span><span class="tag">'+r.country+'</span>'+(sc?'<span class="tag '+sc+'">'+r.status+'</span>':'')+'</div>'+
+    '<div class="d-row"><span class="dl">Developer</span><span class="dv">'+r.developer+'</span></div>'+
+    '<div class="d-row"><span class="dl">Design Status</span><span class="dv">'+r.status+'</span></div>'+
+    '<div class="d-row"><span class="dl">Fuel Enrichment</span><span class="dv">'+r.enrichment+'</span></div>'+
+    '<div class="d-row"><span class="dl">Outlet Temperature</span><span class="dv">'+(r.outletTemp!=null?r.outletTemp+' °C':'—')+'</span></div>'+
+    '<div class="d-row"><span class="dl">Thermal Capacity</span><span class="dv">'+(r.mwt!=null?r.mwt+' MWt':'—')+'</span></div>'+
+    '<div class="d-row"><span class="dl">Gross Capacity</span><span class="dv">'+(r.mwe!=null?r.mwe+' MWe':'—')+'</span></div>'+
+    '<a class="d-link" href="'+url+'" target="_blank" rel="noopener">View full details on WNA →</a>';
+  document.getElementById('detailOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+};
+document.getElementById('detailClose').onclick=function(){
+  document.getElementById('detailOverlay').classList.remove('show');
+  document.body.style.overflow='';
+};
+document.getElementById('detailOverlay').onclick=function(e){
+  if(e.target===this){document.getElementById('detailOverlay').classList.remove('show');document.body.style.overflow='';}
+};
+document.getElementById('sortSel').addEventListener('change',render);
+populateFilters();
+document.getElementById('search').addEventListener('input',render);
+render();
+</script></body></html>
