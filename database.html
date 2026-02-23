@@ -97,7 +97,7 @@ footer{padding:24px 40px;border-top:1px solid var(--border);text-align:center;fo
 </div>
 <footer>© 2026 smrdb.com</footer>
 <script>
-document.getElementById('themeBtn').onclick=function(){document.body.classList.toggle('light');document.body.classList.toggle('dark');};
+var tb=document.getElementById('themeBtn');function setTheme(t){document.body.className=t;try{localStorage.setItem('smrdb-theme',t)}catch(e){}}tb.onclick=function(){setTheme(document.body.classList.contains('dark')?'light':'dark')};try{var saved=localStorage.getItem('smrdb-theme');if(saved)document.body.className=saved}catch(e){};
 const REACTORS=[
 {name:"4S",country:"Japan",spectrum:"Fast",coolant:"Metal-cooled",developer:"Toshiba",status:"Design & development",enrichment:"5-20%",outletTemp:510,mwt:30,mwe:10},
 {name:"A-HTR-100",country:"South Africa",spectrum:"Thermal",coolant:"Gas-cooled",developer:"Eskom",status:"Design & development",enrichment:"5-20%",outletTemp:1200,mwt:100,mwe:35},
@@ -299,4 +299,6 @@ document.getElementById('sortSel').addEventListener('change',render);
 populateFilters();
 document.getElementById('search').addEventListener('input',render);
 render();
+// Auto-open reactor from URL param
+var urlParams=new URLSearchParams(window.location.search);var reactorParam=urlParams.get("reactor");if(reactorParam){showDetail(reactorParam)}
 </script></body></html>
