@@ -70,14 +70,16 @@ footer{padding:24px 48px;border-top:1px solid var(--border);text-align:center;fo
 .tk-meta{font-size:10px;color:var(--dim);margin-bottom:4px;letter-spacing:.03em}
 .tk-dev{font-size:10px;color:var(--dim);opacity:.6}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+
 </style></head><body class="dark">
 <nav><a href="index.html" style="font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase">SMRDB</a>
-<div class="nav-r"><a href="index.html" class="on">Home</a><a href="database.html">Database</a><div class="theme-btn" id="themeBtn"></div></div></nav>
+<div class="nav-r"><a href="index.html" class="on">Home</a><a href="database.html">Database</a><a href="learn.html">Learn</a><div class="theme-btn" id="themeBtn"></div></div></nav>
 <section class="hero">
 <div class="hero-ey">Open-source reactor intelligence</div>
 <h1><span class="h1-line">The <em class="typed" id="typed"></em></span><span class="h1-line">SMR database</span></h1>
 <p class="hero-sub">Structured data on every small modular reactor in development worldwide. Technical specs, licensing status, deployment timelines — queryable, comparable, open.</p>
-<div class="btns"><a href="database.html" class="bp">Explore Database</a><a href="#map" class="bs">View Global Map</a></div>
+<div class="btns"><a href="database.html" class="bp">Explore Database</a><a href="learn.html" class="bs">Learn More</a></div>
 <div class="scroll-cue" style="position:absolute;bottom:32px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);opacity:0;animation:fadeDown .7s ease forwards 2.8s,bob 2s ease-in-out infinite 3.5s">↓ Scroll to explore</div>
 </section>
 <div class="stats reveal"><div class="st"><div class="st-v">134</div><div class="st-l">Reactor Designs</div></div><div class="st"><div class="st-v">19</div><div class="st-l">Countries</div></div><div class="st"><div class="st-v">6</div><div class="st-l">Coolant Types</div></div><div class="st"><div class="st-v">5</div><div class="st-l">Under Construction</div></div></div>
@@ -91,6 +93,7 @@ footer{padding:24px 48px;border-top:1px solid var(--border);text-align:center;fo
 <div class="f reveal"><div class="f-i">03</div><h3>Interactive Global Map</h3><p>Explore every SMR design worldwide on our zoomable map. Zoom in to see reactor names and locations.</p></div>
 <div class="f reveal"><div class="f-i">04</div><h3>Comparison Engine</h3><p>Side-by-side analysis of any reactors. Filter, sort, and search the full database by any technical parameter.</p></div>
 </div></section>
+
 <section class="purpose reveal"><h2>Our Purpose</h2><div class="purpose-content">
 <p><strong>SMRDB exists to expand public knowledge of small modular reactors</strong> and accelerate their path from design to deployment. We believe that widespread understanding of SMR technology is critical to solving the world's most pressing energy challenges.</p>
 <p>The world faces an unprecedented energy dilemma. <strong>Global electricity demand is surging</strong> — driven by the explosive growth of AI and data centers, which are projected to consume 8% of US electricity by 2030. Vampire power from always-on devices drains billions of kilowatt-hours annually. Meanwhile, the climate crisis demands we eliminate carbon emissions from power generation.</p>
@@ -103,7 +106,10 @@ footer{padding:24px 48px;border-top:1px solid var(--border);text-align:center;fo
 <p>We also believe in <strong>transparency about the challenges</strong>. SMR development is expensive — first-of-a-kind costs can exceed $5 billion. Regulatory processes are slow and complex. Nuclear waste, while far smaller in volume than fossil fuel pollution, still requires long-term management. Public perception remains a barrier in many regions.</p>
 <p>But the potential is transformative. SMRs can power remote communities, replace retiring coal plants, desalinate water, produce hydrogen, and provide the reliable baseload that intermittent renewables cannot. <strong>The goal of SMRDB is to make every piece of SMR data freely accessible</strong> — so researchers, policymakers, investors, and the public can make informed decisions about this critical technology.</p>
 </div></section>
-<footer>© 2026 smrdb.com</footer>
+<footer>
+</div>
+<div style="padding:24px 48px;text-align:center;font-size:11px;color:var(--dim);border-top:1px solid var(--border)">© 2026 smrdb.com</div>
+</footer>
 <script>
 var tb=document.getElementById("themeBtn");function setTheme(t){document.body.className=t;try{localStorage.setItem("smrdb-theme",t)}catch(e){};if(typeof drawMap==="function")drawMap()}tb.onclick=function(){setTheme(document.body.classList.contains("dark")?"light":"dark")};try{var saved=localStorage.getItem("smrdb-theme");if(saved)document.body.className=saved}catch(e){};
 var typed=document.getElementById("typed"),word="definitive",ci=0;setTimeout(function(){var iv=setInterval(function(){typed.textContent=word.substring(0,ci+1);ci++;if(ci>=word.length){clearInterval(iv);typed.style.fontStyle="italic";typed.classList.add("done")}},80)},800);
