@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SMRDB — Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#111113;--bg2:#1a1a1d;--text:#d4d4d8;--dim:#71717a;--ghost:#27272a;--border:#27272a}
+.dark{--bg:#111113;--bg2:#1a1a1d;--text:#d4d4d8;--dim:#71717a;--ghost:#27272a;--border:#27272a}
+.light{--bg:#f5f5f6;--bg2:#e8e8ea;--text:#18181b;--dim:#3f3f46;--ghost:#d4d4d8;--border:#c4c4c8}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;transition:background .4s,color .4s}a{color:inherit;text-decoration:none}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:background .3s}
+.dark nav{background:rgba(17,17,19,.9)}.light nav{background:rgba(245,245,246,.93)}
+.nav-r{display:flex;gap:32px;align-items:center}
+.nav-r a{color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:color .3s}.nav-r a:hover,.nav-r a.on{color:var(--text)}
+.theme-btn{width:36px;height:20px;border-radius:10px;background:var(--ghost);border:1px solid var(--border);cursor:pointer;position:relative;transition:all .3s}
+.theme-btn::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .3s}
+.light .theme-btn::after{left:18px;background:var(--text)}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}.reveal.vis{opacity:1;transform:translateY(0)}
+.page-hero{padding:100px 48px 60px;text-align:center}
+.page-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(36px,5vw,56px);font-weight:400;margin-bottom:12px}
+.page-hero p{font-size:13px;color:var(--dim);max-width:500px;margin:0 auto}
+.nav-pills{display:flex;justify-content:center;gap:8px;padding:0 48px 40px;flex-wrap:wrap}
+.pill{padding:8px 18px;border:1px solid var(--border);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .2s;font-family:'IBM Plex Mono',monospace;background:none}
+.pill:hover{border-color:var(--dim);color:var(--text)}
+/* Stats Dashboard */
+.dash{padding:80px 48px;max-width:1200px;margin:0 auto;border-top:1px solid var(--border)}
+.dash-h{text-align:center;margin-bottom:48px}
+.dash-h h2{font-family:'Instrument Serif',serif;font-size:36px;font-weight:400;margin-bottom:6px}
+.dash-h p{font-size:11px;color:var(--dim)}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.dash-card{padding:28px;border:1px solid var(--border);background:var(--bg2);transition:background .3s}
+.dash-card h4{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:20px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:10px;width:90px;text-align:right;color:var(--dim);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:16px;background:var(--ghost);overflow:hidden}
+.bar-fill{height:100%;background:var(--text);opacity:.25;transition:width 1s ease}
+.bar-val{font-size:11px;width:24px;text-align:right;font-weight:600}
+
+/* Timeline */
+.tl-section{padding:80px 48px;max-width:900px;margin:0 auto;border-top:1px solid var(--border)}
+.tl{position:relative;padding-left:36px}
+.tl::before{content:'';position:absolute;left:10px;top:8px;bottom:8px;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:28px;padding-left:20px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--ghost);border:2px solid var(--dim)}
+.tl-year{font-size:11px;font-weight:600;letter-spacing:.08em;margin-bottom:6px;color:var(--text)}
+.tl-body{font-size:12px;line-height:1.7;color:var(--dim)}
+.tl-body strong{color:var(--text)}
+
+/* FAQ */
+.faq-section{padding:80px 48px;max-width:900px;margin:0 auto;border-top:1px solid var(--border)}
+.faq-list{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+.faq{background:var(--bg)}
+.faq-q{width:100%;padding:18px 24px;background:none;border:none;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:background .2s}
+.faq-q:hover{background:var(--bg2)}
+.faq-arrow{font-size:18px;color:var(--dim);transition:transform .3s;flex-shrink:0}
+.faq.open .faq-arrow{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;padding:0 24px;font-size:12px;line-height:1.8;color:var(--dim)}
+.faq.open .faq-a{max-height:300px;padding:0 24px 20px}
+
+/* Glossary */
+.glossary-section{padding:80px 48px;max-width:1100px;margin:0 auto;border-top:1px solid var(--border)}
+.gl-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.gl{padding:20px 24px;border:1px solid var(--border);transition:background .2s}
+.gl:hover{background:var(--bg2)}
+.gl dt{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--text);font-family:'Instrument Serif',serif;font-size:18px}
+.gl dd{font-size:11px;line-height:1.7;color:var(--dim)}
+
+/* Newsletter */
+.newsletter{padding:48px;text-align:center;border-bottom:1px solid var(--border)}
+.newsletter h3{font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:8px}
+.newsletter p{font-size:12px;color:var(--dim);margin-bottom:20px}
+.nl-form{display:flex;gap:8px;max-width:400px;margin:0 auto}
+.nl-form input{flex:1;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none}
+.nl-form input:focus{border-color:var(--dim)}
+.nl-form button{padding:12px 24px;background:var(--text);color:var(--bg);border:none;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.nl-form button:hover{opacity:.85}
+.nl-msg{margin-top:12px;font-size:12px;color:var(--dim)}
+
+@media(max-width:900px){.dash-grid,.gl-grid{grid-template-columns:1fr}.dash,.tl-section,.faq-section,.glossary-section{padding:40px 20px}}
+@media(max-width:900px){.dash-grid,.gl-grid{grid-template-columns:1fr}.dash,.tl-section,.faq-section,.glossary-section{padding:40px 20px}.page-hero{padding:80px 20px 40px}.nav-pills{padding:0 20px 24px}}
+footer{padding:24px 48px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--dim)}
+</style></head><body class="dark">
+<nav>
+<a href="index.html" style="font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase">SMRDB</a>
+<div class="nav-r"><a href="index.html">Home</a><a href="database.html">Database</a><a href="learn.html" class="on">Learn</a><div class="theme-btn" id="themeBtn"></div></div>
+</nav>
+<div class="page-hero">
+<h1>Learn About SMRs</h1>
+<p>Everything you need to understand small modular reactor technology — data, definitions, history, and answers.</p>
+</div>
+<div class="nav-pills">
+<a class="pill" href="#stats">Stats Dashboard</a>
+<a class="pill" href="#timeline">Timeline</a>
+<a class="pill" href="#faq">FAQ</a>
+<a class="pill" href="#glossary">Glossary</a>
+<a class="pill" href="#newsletter">Newsletter</a>
+</div>
+<section class="dash reveal" id="stats">
+<div class="dash-h"><h2>SMR Landscape at a Glance</h2><p>Data-driven breakdown of the global SMR development ecosystem</p></div>
+<div class="dash-grid">
+<div class="dash-card reveal"><h4>By Country (Top 8)</h4><div class="bar-row"><span class="bar-label">USA</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">45</span></div><div class="bar-row"><span class="bar-label">Russia</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span class="bar-val">18</span></div><div class="bar-row"><span class="bar-label">China</span><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><span class="bar-val">12</span></div><div class="bar-row"><span class="bar-label">France</span><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><span class="bar-val">12</span></div><div class="bar-row"><span class="bar-label">Japan</span><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div><span class="bar-val">10</span></div><div class="bar-row"><span class="bar-label">Canada</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="bar-val">6</span></div><div class="bar-row"><span class="bar-label">South Korea</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="bar-val">6</span></div><div class="bar-row"><span class="bar-label">UK</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="bar-val">6</span></div></div>
+<div class="dash-card reveal"><h4>By Coolant Type</h4><div class="bar-row"><span class="bar-label">Water</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">47</span></div><div class="bar-row"><span class="bar-label">Gas</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><span class="bar-val">32</span></div><div class="bar-row"><span class="bar-label">Molten salt</span><div class="bar-track"><div class="bar-fill" style="width:57%"></div></div><span class="bar-val">27</span></div><div class="bar-row"><span class="bar-label">Metal</span><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><span class="bar-val">26</span></div><div class="bar-row"><span class="bar-label">Heat pipe</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="bar-val">2</span></div></div>
+<div class="dash-card reveal"><h4>By Power Output</h4><div class="bar-row"><span class="bar-label">0-50 MWe</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">75</span></div><div class="bar-row"><span class="bar-label">50-100 MWe</span><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><span class="bar-val">16</span></div><div class="bar-row"><span class="bar-label">100-200 MWe</span><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><span class="bar-val">20</span></div><div class="bar-row"><span class="bar-label">200-300 MWe</span><div class="bar-track"><div class="bar-fill" style="width:19%"></div></div><span class="bar-val">14</span></div><div class="bar-row"><span class="bar-label">300+ MWe</span><div class="bar-track"><div class="bar-fill" style="width:9%"></div></div><span class="bar-val">7</span></div><div class="bar-row"><span class="bar-label">Unknown MWe</span><div class="bar-track"><div class="bar-fill" style="width:3%"></div></div><span class="bar-val">2</span></div></div>
+<div class="dash-card reveal"><h4>By Status</h4><div class="bar-row"><span class="bar-label">Design & development</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">127</span></div><div class="bar-row"><span class="bar-label">Under construction</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="bar-val">5</span></div><div class="bar-row"><span class="bar-label">In operation</span><div class="bar-track"><div class="bar-fill" style="width:2%"></div></div><span class="bar-val">2</span></div></div>
+</div>
+</section>
+<section class="tl-section reveal" id="timeline">
+<div class="dash-h"><h2>SMR Timeline</h2><p>Key milestones in small modular reactor development</p></div>
+<div class="tl">
+<div class="tl-item reveal"><div class="tl-year">2007</div><div class="tl-body"><strong>NuScale founded</strong><br>NuScale Power established in Corvallis, Oregon, beginning development of its light-water SMR design based on Oregon State University research.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2012</div><div class="tl-body"><strong>DOE SMR Licensing Support</strong><br>US Department of Energy launches Small Modular Reactor Licensing Technical Support program, awarding initial funding to mPower and NuScale.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2017</div><div class="tl-body"><strong>NuScale submits first US SMR design certification</strong><br>NuScale becomes the first company to submit a design certification application for an SMR to the US Nuclear Regulatory Commission.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2018</div><div class="tl-body"><strong>China's HTR-PM construction completed</strong><br>Construction of the world's first high-temperature gas-cooled pebble-bed modular reactor completed at Shidao Bay, Shandong Province.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2019</div><div class="tl-body"><strong>Russia's Akademik Lomonosov operational</strong><br>The world's first floating nuclear power plant, powered by two KLT-40S reactors, begins commercial operation in Pevek, Russia.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2020</div><div class="tl-body"><strong>NuScale receives first US SMR design approval</strong><br>NRC issues final safety evaluation report for NuScale's SMR design — first-ever SMR design approval in the United States.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2021</div><div class="tl-body"><strong>China's HTR-PM achieves first criticality</strong><br>The HTR-PM demonstration plant achieves first criticality, becoming the world's first operational Generation IV reactor.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2022</div><div class="tl-body"><strong>HTR-PM connected to grid · Rolls-Royce SMR enters UK GDA</strong><br>China's HTR-PM begins supplying electricity. Rolls-Royce SMR enters the UK Generic Design Assessment process.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2023</div><div class="tl-body"><strong>NuScale CFPP cancelled · TerraPower breaks ground</strong><br>NuScale's Carbon Free Power Project cancelled due to rising costs. TerraPower begins construction of the Natrium reactor in Kemmerer, Wyoming.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2024</div><div class="tl-body"><strong>Kairos Hermes construction permit · BREST-OD-300 construction advances</strong><br>Kairos Power receives NRC construction permit for Hermes demonstration reactor in Tennessee. Russia's BREST-OD-300 lead-cooled fast reactor progresses.</div></div>
+<div class="tl-item reveal"><div class="tl-year">2025</div><div class="tl-body"><strong>Global momentum accelerates</strong><br>Over 130 SMR designs in development worldwide. Multiple designs entering regulatory review across US, UK, Canada, and South Korea. AI data center demand drives renewed interest.</div></div>
+</div>
+</section>
+<section class="faq-section reveal" id="faq">
+<div class="dash-h"><h2>Frequently Asked Questions</h2><p>Common questions about small modular reactor technology</p></div>
+<div class="faq-list">
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What is a small modular reactor (SMR)?<span class="faq-arrow">+</span></button><div class="faq-a">An SMR is a nuclear reactor with an electrical output typically under 300 MWe — roughly one-third the size of a conventional nuclear plant. "Modular" means they can be factory-fabricated and transported to site, reducing construction complexity. Many SMR designs incorporate passive safety features that rely on natural physics rather than active systems.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Are SMRs safe?<span class="faq-arrow">+</span></button><div class="faq-a">Modern SMR designs are engineered with multiple layers of passive safety. Many designs physically cannot melt down — they use natural convection, gravity, and negative temperature coefficients to shut down automatically without human intervention or external power. The smaller core size also means a smaller source term in the event of any incident.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">How much does an SMR cost?<span class="faq-arrow">+</span></button><div class="faq-a">First-of-a-kind SMR costs are high — estimates range from $5,000 to $15,000 per kW for initial deployments. However, the modular factory-built approach is expected to drive costs down significantly with serial production. The target for nth-of-a-kind units is $3,000–$5,000/kW, which would make them competitive with other clean energy sources when accounting for capacity factor.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What fuel do SMRs use?<span class="faq-arrow">+</span></button><div class="faq-a">Most SMR designs use uranium fuel, but with varying enrichment levels. Many use Low-Enriched Uranium (LEU) under 5% — the same as conventional reactors. Some advanced designs require High-Assay Low-Enriched Uranium (HALEU) enriched to 5-20%. A few designs use thorium or even spent nuclear fuel. The enrichment level affects performance, refueling intervals, and proliferation considerations.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">How long does it take to build an SMR?<span class="faq-arrow">+</span></button><div class="faq-a">Once factory manufacturing is established, SMR proponents target 3-4 year construction timelines — significantly shorter than the 10-15 years common for large conventional reactors. The modular approach means major components arrive pre-fabricated and pre-tested, reducing on-site construction time and quality risks.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What about nuclear waste?<span class="faq-arrow">+</span></button><div class="faq-a">SMRs produce nuclear waste similar in nature to conventional reactors, but in smaller quantities due to their size. Some advanced designs — particularly fast-spectrum and molten salt reactors — can actually consume existing nuclear waste as fuel, potentially reducing the overall waste problem. All waste requires careful long-term management regardless of reactor type.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can SMRs power data centers?<span class="faq-arrow">+</span></button><div class="faq-a">Yes — this is one of the most promising near-term applications. Hyperscale data centers need 100-500 MW of reliable, 24/7 baseload power. SMRs are ideally sized for co-location, providing carbon-free electricity directly to the facility. Several major tech companies have announced partnerships with SMR developers specifically for data center power.</div></div>
+<div class="faq reveal"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What's the difference between thermal and fast spectrum?<span class="faq-arrow">+</span></button><div class="faq-a">Thermal reactors use a moderator (usually water or graphite) to slow neutrons down, making fission more likely with lower-enriched fuel. Fast reactors operate without a moderator, using high-energy neutrons. Fast reactors can breed new fuel, burn waste, and operate on a wider range of fuels, but are more complex to engineer. About 100 of the 134 SMR designs in our database are thermal, and 34 are fast spectrum.</div></div>
+</div>
+</section>
+<section class="glossary-section reveal" id="glossary">
+<div class="dash-h"><h2>Nuclear Glossary</h2><p>Key terms and abbreviations used in SMR technology</p></div>
+<div class="gl-grid">
+<div class="gl reveal"><dt>MWe</dt><dd>Megawatt electrical — the electrical power output of a reactor. This is the usable electricity sent to the grid.</dd></div>
+<div class="gl reveal"><dt>MWt</dt><dd>Megawatt thermal — the total heat energy produced by the reactor core. Always higher than MWe due to thermal conversion efficiency (typically 30-45%).</dd></div>
+<div class="gl reveal"><dt>HALEU</dt><dd>High-Assay Low-Enriched Uranium — uranium enriched to between 5% and 20% U-235. Required by many advanced SMR designs for higher energy density and longer fuel cycles.</dd></div>
+<div class="gl reveal"><dt>LEU</dt><dd>Low-Enriched Uranium — uranium enriched to under 5% U-235. The standard fuel for most conventional nuclear power plants and many water-cooled SMR designs.</dd></div>
+<div class="gl reveal"><dt>Passive Safety</dt><dd>Safety systems that rely on natural physical phenomena — gravity, natural circulation, thermal expansion — rather than active components like pumps or operator intervention.</dd></div>
+<div class="gl reveal"><dt>Fast Spectrum</dt><dd>A reactor that uses high-energy (fast) neutrons to sustain fission. Can breed fuel, burn actinides, and use a wider range of fuel types than thermal reactors.</dd></div>
+<div class="gl reveal"><dt>Thermal Spectrum</dt><dd>A reactor that uses a moderator to slow neutrons to thermal energies, increasing fission probability. Most conventional and many SMR designs are thermal.</dd></div>
+<div class="gl reveal"><dt>Coolant</dt><dd>The fluid used to transfer heat from the reactor core. Options include water (light or heavy), liquid metals (sodium, lead), molten salts, helium gas, and heat pipes.</dd></div>
+<div class="gl reveal"><dt>SMR</dt><dd>Small Modular Reactor — generally defined as a nuclear reactor producing under 300 MWe, designed for factory fabrication and modular deployment.</dd></div>
+<div class="gl reveal"><dt>GDA / GDR</dt><dd>Generic Design Assessment (UK) / Generic Design Review — the regulatory process by which a reactor design is evaluated independently of a specific site.</dd></div>
+<div class="gl reveal"><dt>NRC</dt><dd>Nuclear Regulatory Commission — the US federal agency responsible for licensing and regulating civilian nuclear power plants and materials.</dd></div>
+<div class="gl reveal"><dt>Burnup</dt><dd>A measure of how much energy has been extracted from nuclear fuel, typically expressed in gigawatt-days per metric ton (GWd/t). Higher burnup means more efficient fuel use.</dd></div>
+</div>
+</section>
+<section class="newsletter-section reveal" id="newsletter" style="padding:80px 48px;max-width:600px;margin:0 auto;border-top:1px solid var(--border);text-align:center">
+<h2 style="font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;margin-bottom:8px">Stay Updated</h2>
+<p style="font-size:12px;color:var(--dim);margin-bottom:28px;line-height:1.7">Get notified when new reactor designs are added, statuses change, or major milestones occur in the SMR industry.</p>
+<div class="nl-form" style="display:flex;gap:8px;max-width:420px;margin:0 auto">
+<input type="email" id="nlEmail" placeholder="your@email.com" style="flex:1;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;transition:border-color .2s">
+<button onclick="var e=document.getElementById('nlEmail');if(e.value.includes('@')){e.value='';document.getElementById('nlMsg').textContent='Thanks! You\'ll hear from us soon.';document.getElementById('nlMsg').style.display='block'}" style="padding:14px 24px;background:var(--text);color:var(--bg);border:none;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;white-space:nowrap">Subscribe</button>
+</div>
+<div id="nlMsg" style="display:none;margin-top:16px;font-size:12px;color:var(--dim)"></div>
+</section>
+<footer>© 2026 smrdb.com</footer>
+<script>
+var tb=document.getElementById('themeBtn');function setTheme(t){document.body.className=t;try{localStorage.setItem('smrdb-theme',t)}catch(e){}}tb.onclick=function(){setTheme(document.body.classList.contains('dark')?'light':'dark')};try{var saved=localStorage.getItem('smrdb-theme');if(saved)document.body.className=saved}catch(e){};
+var reveals=document.querySelectorAll('.reveal'),revealed=new Set();function checkReveal(){reveals.forEach(function(el,i){if(revealed.has(i))return;if(el.getBoundingClientRect().top<window.innerHeight-60){el.classList.add('vis');revealed.add(i)}})}window.addEventListener('scroll',checkReveal);checkReveal();
+</script></body></html>
